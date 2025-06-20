@@ -564,7 +564,9 @@ export default function TicketForm({
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Submit</Button>
+                        <div className="w-full flex justify-center">
+                        <Button type="submit" className="w-full md:max-w-xs">Submit</Button>
+                        </div>
                     </form>
                 </Form>
             </Card>

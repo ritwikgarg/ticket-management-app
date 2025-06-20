@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         employee_id: "57264",
                         first_name: "Ritwik",
                         last_name: "Garg",
-                        role: Role.SERVICE,
+                        role: Role.SOLVER,
                         email: "ritwik.garg@merai.co",
                         contact_no: "8291620011",
                     },
@@ -57,13 +57,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             throw error;
         }
     };
-
     // Logout function
     const logout = () => {
         setUser(null);
         // TODO: clear tokens
     };
-
     return (
         <AuthContext.Provider
             value={{ user, login, logout, isAuthenticated: !!user }}
