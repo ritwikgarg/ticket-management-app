@@ -94,6 +94,7 @@ import { Handle } from "../Item";
 import { cn } from "@/lib/utils";
 import styles from "./Container.module.css";
 import { Badge } from "@/components/ui/badge";
+import { TicketCardSkeleton } from "@/components/ticket/CardSkeleton";
 
 export interface Props {
     children: React.ReactNode;
@@ -112,6 +113,7 @@ export interface Props {
     className?: React.ComponentProps<JSXElementConstructor<any>>;
     onClick?(): void;
     onRemove?(): void;
+    loading?: boolean;
 }
 
 export const Container = forwardRef<HTMLElement, Props>(
@@ -187,9 +189,21 @@ export const Container = forwardRef<HTMLElement, Props>(
 
                 {placeholder ? (
                     children
+                ) : props.loading ? (
+                    <ul className="p-2 space-y-2 min-h-60">
+                        {[...Array(2)].map((_, i) => (
+                            <li key={i} className="w-full">
+                                <div className="w-full">
+                                    <TicketCardSkeleton />
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
                 ) : (
                     <ul className="p-2 space-y-2 min-h-60">{children}</ul>
                 )}
+
+
             </Component>
         );
     }

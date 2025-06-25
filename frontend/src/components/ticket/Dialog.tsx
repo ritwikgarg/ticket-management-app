@@ -19,107 +19,14 @@ import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { formatDateWithSuffix } from "@/utils/FormatDate";
+import { toast } from "sonner";
+import { updateTicketComment } from "@/api/ticket/ticket-api";
+import { Loader2 } from "lucide-react";
+import { TicketDialogSkeleton } from "./DialogSkeleton";
 
-export function TicketDialogSkeleton({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-    return (
 
-        <Card>
-            <CardContent>
-                <div className="md:max-w-7xl w-full mx-auto space-y-4">
-                    {/* Ticket ID + System ID */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                        <div className="flex flex-col">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-9 mt-1 w-full" />
-                        </div>
-                        <div className="flex flex-col">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-9 mt-1 w-full" />
-                        </div>
-                    </div>
 
-                    {/* Created By + Created At */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                        <div className="flex flex-col">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-9 mt-1 w-full" />
-                        </div>
-                        <div className="flex flex-col">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-9 mt-1 w-full" />
-                        </div>
-                    </div>
 
-                    {/* Priority + Status */}
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                            <Skeleton className="h-4 w-20" />
-                            <Skeleton className="h-6 w-16 mt-1 sm:mt-0" />
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                            <Skeleton className="h-4 w-20" />
-                            <Skeleton className="h-6 w-20 mt-1 sm:mt-0" />
-                        </div>
-                    </div>
-
-                    {/* Issues Grid Placeholder */}
-                    <div className="flex-1">
-                        <Skeleton className="h-4 w-24 mb-2" />
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {[...Array(3)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="w-full h-24 p-4 rounded-md border border-input/50 bg-transparent shadow-none flex flex-col gap-2"
-                                >
-                                    <Skeleton className="h-4 w-28" />
-                                    <div className="flex gap-2 flex-wrap pt-1">
-                                        {[...Array(2)].map((_, j) => (
-                                            <Skeleton key={j} className="h-5 w-20 rounded-md" />
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Issue Description */}
-                    <div className="pt-2">
-                        <Skeleton className="h-4 w-32 mb-1" />
-                        <Skeleton className="h-20 w-full" />
-                    </div>
-
-                    {/* Surgeon Comment */}
-                    <div className="pt-2">
-                        <Skeleton className="h-4 w-36 mb-1" />
-                        <Skeleton className="h-20 w-full" />
-                    </div>
-
-                    {/* Comments */}
-                    <div className="pt-2">
-                        <Skeleton className="h-4 w-28 mb-1" />
-                        <Skeleton className="h-20 w-full" />
-                    </div>
-
-                    {/* Attachments */}
-                    <div className="pt-2">
-                        <Skeleton className="h-4 w-24 mb-1" />
-                        <div className="flex flex-wrap gap-2 mt-1">
-                            {[...Array(2)].map((_, i) => (
-                                <Skeleton key={i} className="h-8 w-28 rounded-md" />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Save Button */}
-                    <div className="w-full flex justify-center pt-4">
-                        <Skeleton className="h-10 w-full md:max-w-xs rounded-md" />
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-
-    );
-}
 
 type TicketDialogProps = {
     ticket?: Ticket;
@@ -137,13 +44,29 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
         }
     }, [ticket, open]);
 
-    const handleSave = () => {
-        console.log("Saved comment:", comment);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async () => {
+        if (!ticket?.ticketId || isSaving) return;
+
+        setIsSaving(true);
+        try {
+            const res = await updateTicketComment(ticket.ticketId, comment);
+            if (res.success) {
+                toast.success("Changes saved successfully");
+                onOpenChange(false); // ✅ close only on success
+            }
+        } catch (error) {
+            toast.error("An error occurred while saving.");
+            console.error(error);
+        } finally {
+            setIsSaving(false); // ✅ enable button again
+        }
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="md:max-w-5xl xl:max-w-7xl w-full mx-auto flex flex-col gap-y-4 max-h-screen overflow-y-auto">
+            <DialogContent className="md:max-w-5xl xl:max-w-6xl w-full mx-auto flex flex-col gap-y-4 max-h-screen overflow-y-auto hide-scrollbar">
 
                 <DialogHeader className="mt-6 md:mt-0 text-left">
                     <DialogTitle>Ticket Details</DialogTitle>
@@ -153,7 +76,7 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                 </DialogHeader>
 
                 {loading ? (
-                    <TicketDialogSkeleton open={open} onOpenChange={onOpenChange} />
+                    <TicketDialogSkeleton />
                 ) : (
                     <>
 
@@ -174,8 +97,6 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                                             <Input value={ticket?.systemId} disabled className="w-full mt-1 text-sm" />
                                         </div>
                                     </div>
-
-
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                                         {/* Created By */}
                                         <div className="flex flex-col">
@@ -332,13 +253,27 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
 
                                     {/* Save Button */}
                                     <div className="w-full flex justify-center">
-                                        <Button className="w-full md:max-w-xs cursor-pointer" onClick={handleSave}>Save</Button>
+                                        <Button
+                                            className="w-full md:max-w-xs cursor-pointer"
+                                            onClick={handleSave}
+                                            disabled={isSaving}
+                                        >
+                                            {isSaving ? (
+                                                <span className="flex items-center gap-2">
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                </span>
+                                            ) : (
+                                                "Save"
+                                            )}
+                                        </Button>
+
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
                     </>
                 )}
+
             </DialogContent>
         </Dialog>
     );

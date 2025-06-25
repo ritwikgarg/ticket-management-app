@@ -3,7 +3,7 @@ import { Priority } from "@/enums/ticket/Priority";
 import { Status } from "@/enums/ticket/Status";
 import type { Ticket } from "@/models/Ticket";
 
-const issueMap: IssueMap = {
+ const issueMap: IssueMap = {
         hardware: ["motor", "robot_arm"],
         software: ["gap_check"],
         other: [],
@@ -20,6 +20,17 @@ export const createTicket = (
     })
 }
 
+export async function updateTicketComment(ticketId: string, comment: string): Promise<{ success: boolean }> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(`PUT /api/ticket/${ticketId} with comment: ${comment}`);
+      resolve({ success: true });
+    }, 1500); // Simulated network delay
+  });
+}
+
+
+
 export const getTicketDetails = (ticketId: string): Promise<{ data: Ticket }> => {
     return new Promise((resolve, reject) => {
 
@@ -32,7 +43,7 @@ export const getTicketDetails = (ticketId: string): Promise<{ data: Ticket }> =>
             ticketCreationDate: new Date(),
             ticketLastUpdatedDate: new Date(),
             priority: Priority.HIGH,
-            status: Status.SOLVED,
+            status: Status.OPEN,
             issues: issueMap,
             issueDescription: "Issue details here...",
             surgeonComment: "Please resolve quickly.",
@@ -60,7 +71,7 @@ export const getTicketDetails = (ticketId: string): Promise<{ data: Ticket }> =>
 }
 
 export const getTicketList = (
-    assignedTo?: string
+  assignedTo?: string
 ): Promise<{ data: Ticket[] }> => {
 
     const ticket: Ticket = {

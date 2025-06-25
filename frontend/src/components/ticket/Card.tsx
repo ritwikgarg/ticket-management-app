@@ -36,6 +36,7 @@ export type TicketCardProps = {
     handleSize?: number;
     listeners?: DraggableSyntheticListeners;
 };
+
 export function TicketCard(props: TicketCardProps) {
     const {
         ticketId,
@@ -73,6 +74,8 @@ export function TicketCard(props: TicketCardProps) {
 
     return (
         <>
+
+       
             <Card
                 onClick={handleClick}
                 className="w-full cursor-pointer hover:shadow-md transition-shadow py-0"
@@ -87,31 +90,7 @@ export function TicketCard(props: TicketCardProps) {
                                     #{ticketId}
                                 </h3>
                             </div>
-                            {props.status ? (
-                                <Badge
-                                    className={cn(
-                                        "capitalize text-xs px-2 py-1 rounded-lg w-fit",
-                                        props.status === Status.OPEN
-                                            ? "bg-blue-100 text-blue-600"
-                                            : props.status ===
-                                              Status.DOING
-                                            ? "bg-orange-100 text-orange-600"
-                                            : props.status ===
-                                              Status.REVIEW
-                                            ? "bg-pink-100 text-pink-600"
-                                            : props.status === Status.SOLVED
-                                            ? "bg-green-100 text-green-600"
-                                            : "bg-gray-100 text-gray-600" // fallback styling
-                                    )}
-                                >
-                                    {formatEnumValue(props.status)}
-                                </Badge>
-                            ) : (
-                                // Temporary debug - remove this once status is working
-                                <Badge className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-lg">
-                                    No Status
-                                </Badge>
-                            )}
+                         
                         </div>
 
                         <div className="grid grid-cols-[auto_1fr] gap-y-3 gap-x-4 text-sm">
@@ -205,6 +184,7 @@ export function TicketCard(props: TicketCardProps) {
                         ) : null}
                     </span>
                 </CardContent>
+    
             </Card>
 
             {/* Show dialog only if ticket is fetched */}
@@ -219,3 +199,4 @@ export function TicketCard(props: TicketCardProps) {
         </>
     );
 }
+

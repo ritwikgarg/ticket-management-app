@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { issueMetadata, issueMetdataMap } from "@/enums/ticket/IssueMetadata";
 import { Priority } from "@/enums/ticket/Priority";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CloudUpload, Paperclip } from "lucide-react";
+import { CloudUpload, Loader2, Paperclip } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -55,6 +55,10 @@ const dropZoneConfig = {
     maxSize: 1024 * 1024 * 100,
     multiple: true,
 };
+
+
+
+
 
 const formSchema = z.object({
     systemId: z
@@ -133,6 +137,8 @@ export default function TicketForm({
 }: React.ComponentProps<"div">) {
     const { user } = useAuth();
     const [files, setFiles] = useState<File[] | undefined>(undefined);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -171,6 +177,7 @@ export default function TicketForm({
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
+            setIsSubmitting(true);
             delete values.issueSelection;
             const issues: IssueMap = {
                 hardware: values.issuehardware,
@@ -191,11 +198,15 @@ export default function TicketForm({
                 ...newValues,
             };
             const response = await createTicket(newTicket);
-            toast.success("Ticket has been submitted", {});
+            if (response.data) {
+                toast.success("Ticket has been submitted", {});
+            }
             form.reset();
         } catch (error) {
             console.error("Form submission error", error);
             toast.error("Failed to submit the form. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -293,7 +304,7 @@ export default function TicketForm({
                                                         className={cn(
                                                             "w-full",
                                                             fieldState.error &&
-                                                                "border-destructive focus-visible:ring-destructive" // Apply error styles
+                                                            "border-destructive focus-visible:ring-destructive" // Apply error styles
                                                         )}
                                                     >
                                                         <SelectValue placeholder="Select the priority of this ticket" />
@@ -341,9 +352,9 @@ export default function TicketForm({
                                                     control={form.control}
                                                     name={
                                                         `issue${categoryKey}` as
-                                                            | "issuehardware"
-                                                            | "issuesoftware"
-                                                            | "issueother"
+                                                        | "issuehardware"
+                                                        | "issuesoftware"
+                                                        | "issueother"
                                                     }
                                                     render={({
                                                         field,
@@ -362,7 +373,7 @@ export default function TicketForm({
                                                                             form.getValues(
                                                                                 "issueSelection"
                                                                             ) ==
-                                                                                "")
+                                                                            "")
                                                                         ? "font-medium text-destructive"
                                                                         : ""
                                                                 )}
@@ -388,7 +399,7 @@ export default function TicketForm({
                                                                     loop
                                                                     valueLabelMap={
                                                                         issueMetadata[
-                                                                            categoryKey as keyof typeof issueMetadata
+                                                                        categoryKey as keyof typeof issueMetadata
                                                                         ]
                                                                     }
                                                                     className="max-w-xs"
@@ -406,7 +417,7 @@ export default function TicketForm({
                                                                                     form.getValues(
                                                                                         "issueSelection"
                                                                                     ) ==
-                                                                                        "")
+                                                                                    "")
                                                                                 ? "border-destructive focus-visible:ring-destructive"
                                                                                 : ""
                                                                         )}
@@ -452,7 +463,7 @@ export default function TicketForm({
                                     )}
                                     <div className="md:col-span-3">
                                         {form.getValues("issueSelection") ==
-                                        "" ? (
+                                            "" ? (
                                             <div className="text-sm font-normal text-destructive -mt-4">
                                                 {
                                                     (
@@ -562,9 +573,17 @@ export default function TicketForm({
                             <Button
                                 type="submit"
                                 className="w-full md:max-w-xs"
+                                disabled={isSubmitting}
                             >
-                                Submit
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    </>
+                                ) : (
+                                    "Submit"
+                                )}
                             </Button>
+
                         </div>
                     </form>
                 </Form>

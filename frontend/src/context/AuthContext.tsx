@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         employee_id: "57264",
                         first_name: "Ritwik",
                         last_name: "Garg",
-                        role: Role.SOLVER,
+                        role: Role.SERVICE,
                         email: "ritwik.garg@merai.co",
                         contact_no: "8291620011",
                     },

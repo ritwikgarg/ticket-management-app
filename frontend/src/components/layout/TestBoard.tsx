@@ -56,6 +56,7 @@ function DroppableContainer({
     items,
     style,
     handleSize,
+    loading,
     ...props
 }: ContainerProps & {
     disabled?: boolean;
@@ -80,6 +81,7 @@ function DroppableContainer({
         },
         animateLayoutChanges,
     });
+
     const isOverContainer = over
         ? (id === over.id && active?.data.current?.type !== "container") ||
           items.some((ticket) => ticket.ticketId === over.id)
@@ -102,12 +104,14 @@ function DroppableContainer({
             }}
             columns={columns}
             handleSize={handleSize}
+            loading={loading}
             {...props}
         >
             {children}
         </Container>
     );
 }
+
 
 const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -178,6 +182,7 @@ export function MultipleContainers({
     scrollable,
 }: Props) {
     const [tickets, setTickets] = useState<Ticket[]>([]);
+      const [loading, setLoading] = useState(true);
     const [items, setItems] = useState<Items>(() => {
         // Initially empty
         return Object.fromEntries(
@@ -187,6 +192,7 @@ export function MultipleContainers({
 
     useEffect(() => {
         async function getTicketListData() {
+            setLoading(true)
             const fetchedTickets: Ticket[] = (await getTicketList()).data;
             setTickets(fetchedTickets);
 
@@ -199,6 +205,7 @@ export function MultipleContainers({
             ) as Items;
 
             setItems(groupedByStatus);
+            setLoading(false)
         }
 
         getTicketListData();
@@ -516,6 +523,7 @@ export function MultipleContainers({
                                 items={ticketsWithId}
                                 scrollable={scrollable}
                                 handleSize={20}
+                                loading={loading}
                             >
                                 <SortableContext
                                     items={ticketsWithId.map(
