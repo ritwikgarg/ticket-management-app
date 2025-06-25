@@ -1,6 +1,6 @@
 // pages/dashboard/UserDashboard.tsx
-import { SolverDashboardView } from "./SolverDashboardView";
-import { ServiceDashboardView } from "./ServiceDashboardView";
+import { SolverDashboardView } from "../../layout/SolverDashboardLayout";
+import { ServiceDashboardView } from "../../layout/ServiceDashboardLayout";
 import { useAuth } from "@/context/AuthContext";
 
 export function UserDashboard() {

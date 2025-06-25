@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
     FileInput,
@@ -49,11 +48,11 @@ import { useAuth } from "@/context/AuthContext";
 import type { Ticket } from "@/models/Ticket";
 import { Status } from "@/enums/ticket/Status";
 import { createTicket } from "@/api/ticket/ticket-api";
-import {omit, values} from "lodash"
+import { omit, values } from "lodash";
 
 const dropZoneConfig = {
     maxFiles: 5,
-    maxSize: 1024 * 1024 * 100 ,
+    maxSize: 1024 * 1024 * 100,
     multiple: true,
 };
 
@@ -90,26 +89,17 @@ const formSchema = z.object({
     }),
 
     issuehardware: z.array(
-        z
-            .enum(
-                issueMetdataMap["hardware"] as [
-                    keyof typeof issueMetadata.hardware
-                ]
-            )
+        z.enum(
+            issueMetdataMap["hardware"] as [keyof typeof issueMetadata.hardware]
+        )
     ),
     issuesoftware: z.array(
-        z
-            .enum(
-                issueMetdataMap["software"] as [
-                    keyof typeof issueMetadata.software
-                ]
-            )
+        z.enum(
+            issueMetdataMap["software"] as [keyof typeof issueMetadata.software]
+        )
     ),
     issueother: z.array(
-        z
-            .enum(
-                issueMetdataMap["other"] as [keyof typeof issueMetadata.other]
-            )
+        z.enum(issueMetdataMap["other"] as [keyof typeof issueMetadata.other])
     ),
     // Add a hidden validation field
     issueSelection: z
@@ -141,7 +131,7 @@ export default function TicketForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
-    const {user} = useAuth()
+    const { user } = useAuth();
     const [files, setFiles] = useState<File[] | undefined>(undefined);
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -175,30 +165,34 @@ export default function TicketForm({
         form.watch("issueother"),
     ]);
 
-    useEffect(()=>{
-        form.setValue("attachments", files)
-    },[files])
+    useEffect(() => {
+        form.setValue("attachments", files);
+    }, [files]);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             delete values.issueSelection;
             const issues: IssueMap = {
-                hardware:values.issuehardware,
-                software:values.issuesoftware,
-                other:values.issueother
-            }
+                hardware: values.issuehardware,
+                software: values.issuesoftware,
+                other: values.issueother,
+            };
 
-            console.log(typeof values)
-            const newValues = omit(values, ['issuehardware', 'issuesoftware', 'issueother']);
+            console.log(typeof values);
+            const newValues = omit(values, [
+                "issuehardware",
+                "issuesoftware",
+                "issueother",
+            ]);
             const newTicket: Ticket = {
                 createdBy: user?.employee_id!,
                 issues: issues,
                 status: Status.OPEN,
                 ...newValues,
-            }
+            };
             const response = await createTicket(newTicket);
             toast.success("Ticket has been submitted", {});
-            form.reset()
+            form.reset();
         } catch (error) {
             console.error("Form submission error", error);
             toast.error("Failed to submit the form. Please try again.");
@@ -384,9 +378,9 @@ export default function TicketForm({
                                                             <FormControl>
                                                                 <MultiSelector
                                                                     values={
-                                                                        field.value as [
+                                                                        (field.value as [
                                                                             keyof typeof issueMetadata
-                                                                        ] ?? []
+                                                                        ]) ?? []
                                                                     } // Ensure values is always an array
                                                                     onValuesChange={
                                                                         field.onChange
@@ -565,7 +559,12 @@ export default function TicketForm({
                             )}
                         />
                         <div className="w-full flex justify-center">
-                        <Button type="submit" className="w-full md:max-w-xs">Submit</Button>
+                            <Button
+                                type="submit"
+                                className="w-full md:max-w-xs"
+                            >
+                                Submit
+                            </Button>
                         </div>
                     </form>
                 </Form>

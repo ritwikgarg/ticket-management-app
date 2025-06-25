@@ -43,7 +43,7 @@ export function Profile() {
                                 user?.role.substring(1)!}
                         </span>
                     </div>
-                    <Button className="w-full" onClick={goToDashboard}>
+                    <Button className="w-full cursor-pointer" onClick={goToDashboard}>
                         <IconHomeShare />
                         Back to Dashboard
                     </Button>

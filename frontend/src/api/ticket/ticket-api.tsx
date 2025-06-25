@@ -75,14 +75,19 @@ export const getTicketList = (
 
     };
 
-    const tickets: Ticket[] = Array.from({ length: 5 }).map((_, i) => ({
+    const statuses = Object.values(Status);
+    const priorities = Object.values(Priority);
+
+    const tickets: Ticket[] = Array.from({ length: 10 }).map((_, i) => ({
         ...ticket,
         ticketId: `TICKET-${i + 1}`,
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        priority: priorities[Math.floor(Math.random() * priorities.length)]
     })) as Ticket[];
 
 
     return new Promise((resolve, reject) => {
-        const data: Ticket[] = [ticket]
+        const data: Ticket[] = tickets
         setTimeout(() => {
             resolve({ data });
         }, 2000)

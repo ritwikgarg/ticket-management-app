@@ -1,4 +1,5 @@
 import TicketForm from "@/components/forms/ticket-form";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function ServiceDashboardView() {
@@ -8,12 +9,15 @@ export function ServiceDashboardView() {
                 <TabsTrigger value="create">Create a Ticket</TabsTrigger>
                 <TabsTrigger value="history">View Ticket History</TabsTrigger>
             </TabsList>
-            <TabsContent value="create">
-                <TicketForm/>
-            </TabsContent>
-            <TabsContent value="history">
-                Change your password here.
-            </TabsContent>
+
+            <Card className="p-6">
+                <TabsContent value="create">
+                    <TicketForm />
+                </TabsContent>
+                <TabsContent value="history">
+                    View Ticket History here.
+                </TabsContent>
+            </Card>
         </Tabs>
     );
 }

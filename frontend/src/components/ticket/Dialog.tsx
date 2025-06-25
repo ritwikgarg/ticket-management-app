@@ -18,41 +18,10 @@ import { Input } from "../ui/input";
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
-
-const formatDateWithSuffix = (date: Date) => {
-    const day = date.getDate();
-    const suffix =
-        day === 1 || day === 21 || day === 31
-            ? "st"
-            : day === 2 || day === 22
-                ? "nd"
-                : day === 3 || day === 23
-                    ? "rd"
-                    : "th";
-
-    let time = date.toLocaleTimeString("en-IN", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    });
-
-    if (time.endsWith("am")) {
-        time = time.slice(0, -2) + "AM";
-    } else if (time.endsWith("pm")) {
-        time = time.slice(0, -2) + "PM";
-    }
-
-    const monthYear = date.toLocaleDateString("en-IN", {
-        month: "long",
-        year: "numeric",
-    });
-
-    return `${time}, ${day}${suffix} ${monthYear}`;
-};
+import { formatDateWithSuffix } from "@/utils/FormatDate";
 
 export function TicketDialogSkeleton({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
     return (
-
 
         <Card>
             <CardContent>
@@ -176,7 +145,7 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="md:max-w-5xl xl:max-w-7xl w-full mx-auto flex flex-col gap-y-4 max-h-screen overflow-y-auto">
 
-                <DialogHeader className="text-left">
+                <DialogHeader className="mt-6 md:mt-0 text-left">
                     <DialogTitle>Ticket Details</DialogTitle>
                     <DialogDescription>
                         Here are more details about the ticket.
@@ -238,7 +207,7 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                                                     "capitalize text-xs px-2 py-1 rounded-lg w-fit mt-1",
                                                     ticket?.priority === Priority.HIGH
                                                         ? "bg-red-100 text-red-600"
-                                                        : ticket?.priority === Priority.MEDIUM
+                                                        : ticket?.priority === Priority.MED
                                                             ? "bg-yellow-100 text-yellow-600"
                                                             : "bg-green-100 text-green-600"
                                                 )}
@@ -255,9 +224,9 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                                                     "capitalize text-xs px-2 py-1 rounded-lg w-fit mt-1",
                                                     ticket?.status === Status.OPEN
                                                         ? "bg-blue-100 text-blue-600"
-                                                        : ticket?.status === Status.IN_PROGRESS
+                                                        : ticket?.status === Status.DOING
                                                             ? "bg-orange-100 text-orange-600"
-                                                            : ticket?.status === Status.UNDER_VERIFICATION
+                                                            : ticket?.status === Status.REVIEW
                                                                 ? "bg-pink-100 text-pink-600"
                                                                 : ticket?.status === Status.SOLVED
                                                                     ? "bg-green-100 text-green-600"

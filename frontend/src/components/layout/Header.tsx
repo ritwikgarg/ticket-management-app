@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 import { useRoleNavigation } from "@/routes/RedirectHandler";
-import { ModeToggle } from "./theme/mode-toggle";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { ModeToggle } from "../theme/mode-toggle";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export function Header() {
     const { user, logout } = useAuth();
@@ -32,8 +32,8 @@ export function Header() {
                 <DropdownMenu>
                     <div className="flex gap-x-4 items-center">
                         <ModeToggle />
-                        <DropdownMenuTrigger>
-                            <Avatar className="">
+                        <DropdownMenuTrigger >
+                            <Avatar className="cursor-pointer">
                                 <AvatarFallback className="bg-gray-200 dark:bg-gray-900 text-lg font-semibold tracking-normal">
                                     {avatarInitials}
                                 </AvatarFallback>
@@ -41,14 +41,14 @@ export function Header() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="bottom" align="end">
                             <DropdownMenuItem
-                                className="font-semibold"
+                                className="font-semibold cursor-pointer"
                                 onClick={goToProfile}
                             >
                                 My Account
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                                className="text-red-600 font-semibold"
+                                className="text-red-600 font-semibold cursor-pointer"
                                 onClick={logout}
                             >
                                 Logout
