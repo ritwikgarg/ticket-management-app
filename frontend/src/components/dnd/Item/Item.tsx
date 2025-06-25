@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import classNames from "classnames";
-import type { DraggableSyntheticListeners } from "@dnd-kit/core";
+import type {
+    DraggableSyntheticListeners,
+    UniqueIdentifier,
+} from "@dnd-kit/core";
 import type { Transform } from "@dnd-kit/utilities";
 
 import { Handle } from "./components";
@@ -8,6 +11,9 @@ import { Handle } from "./components";
 import styles from "./Item.module.css";
 import type { Ticket } from "@/models/Ticket";
 import { TicketCard } from "@/components/ticket/Card";
+import { Status } from "@/enums/ticket/Status";
+import { useAuth } from "@/context/AuthContext";
+import { Role } from "@/enums/user/Role";
 
 export interface Props {
     dragOverlay?: boolean;
@@ -28,6 +34,7 @@ export interface Props {
     wrapperStyle?: React.CSSProperties;
     value: React.ReactNode;
     ticket: Ticket;
+    containerId: UniqueIdentifier;
     onRemove?(): void;
     renderItem?(args: {
         dragOverlay: boolean;
@@ -68,10 +75,13 @@ export const Item = React.memo(
                 value,
                 wrapperStyle,
                 ticket,
+                containerId,
                 ...props
             },
             ref
         ) => {
+            const { user } = useAuth();
+
             useEffect(() => {
                 if (!dragOverlay) {
                     return;
@@ -103,7 +113,11 @@ export const Item = React.memo(
                     className={classNames(
                         fadeIn && styles.fadeIn,
                         sorting && styles.sorting,
-                        dragOverlay && styles.dragOverlay
+                        dragOverlay && styles.dragOverlay,
+                        containerId === Status.SOLVED &&
+                            user?.role !== Role.ADMIN
+                            ? "cursor-not-allowed"
+                            : ""
                     )}
                     style={
                         {
@@ -141,6 +155,10 @@ export const Item = React.memo(
                                 handleProps={handleProps}
                                 listeners={listeners}
                                 handle={true}
+                                disabled={
+                                    containerId === Status.SOLVED &&
+                                    user?.role !== Role.ADMIN
+                                }
                                 handleSize={handleSize}
                             />
                         </div>

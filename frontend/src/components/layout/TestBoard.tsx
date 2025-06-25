@@ -57,6 +57,7 @@ function DroppableContainer({
     style,
     handleSize,
     loading,
+    className,
     ...props
 }: ContainerProps & {
     disabled?: boolean;
@@ -89,7 +90,10 @@ function DroppableContainer({
 
     return (
         <Container
-            className="font-medium w-full border rounded-md flex-1"
+            className={cn(
+                className,
+                "font-medium w-full border rounded-md flex-1"
+            )}
             ref={setNodeRef}
             style={{
                 ...style,
@@ -162,6 +166,10 @@ function isStatus(value: unknown): value is Status {
 }
 
 import { getTicketList } from "@/api/ticket/ticket-api";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { Role } from "@/enums/user/Role";
+import { Priority } from "@/enums/ticket/Priority";
 
 export function MultipleContainers({
     adjustScale = false,
@@ -181,6 +189,7 @@ export function MultipleContainers({
     vertical = false,
     scrollable,
 }: Props) {
+    const { user } = useAuth();
     const [tickets, setTickets] = useState<Ticket[]>([]);
       const [loading, setLoading] = useState(true);
     const [items, setItems] = useState<Items>(() => {
@@ -323,6 +332,28 @@ export function MultipleContainers({
         });
     }, [items]);
 
+    function sortTickets(tickets: Ticket[]): Ticket[] {
+        const priorityOrder: Record<Priority, number> = {
+            [Priority.HIGH]: 0,
+            [Priority.MED]: 1,
+            [Priority.LOW]: 2,
+        };
+
+        return [...tickets].sort((a, b) => {
+            const aPriority = priorityOrder[a.priority as Priority] ?? 3;
+            const bPriority = priorityOrder[b.priority as Priority] ?? 3;
+
+            if (aPriority !== bPriority) {
+                return aPriority - bPriority;
+            }
+
+            return (
+                a.ticketCreationDate!.getTime() -
+                b.ticketCreationDate!.getTime()
+            );
+        });
+    }
+
     return (
         <DndContext
             sensors={sensors}
@@ -333,6 +364,14 @@ export function MultipleContainers({
                 },
             }}
             onDragStart={({ active }) => {
+                const activeContainer = findContainer(active.id);
+                if (
+                    user?.role !== Role.ADMIN &&
+                    activeContainer === Status.SOLVED
+                ) {
+                    return;
+                }
+
                 setActiveId(active.id);
                 setClonedItems(items);
             }}
@@ -353,6 +392,14 @@ export function MultipleContainers({
                     !overContainer ||
                     !activeContainer ||
                     activeContainer === overContainer
+                ) {
+                    return;
+                }
+
+                if (
+                    user?.role !== Role.ADMIN &&
+                    (activeContainer === Status.SOLVED ||
+                        overContainer === Status.SOLVED)
                 ) {
                     return;
                 }
@@ -440,6 +487,18 @@ export function MultipleContainers({
                 const activeContainer = findContainer(activeId);
                 const overContainer = findContainer(overId);
 
+                console.log("active container: ", activeContainer);
+                console.log("over container: ", overContainer);
+
+                if (
+                    user?.role !== Role.ADMIN &&
+                    (activeContainer === Status.SOLVED ||
+                        overContainer === Status.SOLVED)
+                ) {
+                    setActiveId(null);
+                    return;
+                }
+
                 if (!activeContainer || !overContainer) {
                     setActiveId(null);
                     return;
@@ -504,9 +563,13 @@ export function MultipleContainers({
                     {containers.map((containerId) => {
                         const tickets = items[containerId as Status] ?? [];
 
-                        const ticketsWithId = tickets.filter(
-                            (ticket): ticket is Ticket & { ticketId: string } =>
-                                Boolean(ticket.ticketId)
+                        const sortedTickets = sortTickets(
+                            tickets.filter(
+                                (
+                                    ticket
+                                ): ticket is Ticket & { ticketId: string } =>
+                                    Boolean(ticket.ticketId)
+                            )
                         );
 
                         return (
@@ -520,22 +583,28 @@ export function MultipleContainers({
                                 }
                                 dotComponent={getStatusDot(containerId)}
                                 columns={columns}
-                                items={ticketsWithId}
+                                items={sortedTickets}
                                 scrollable={scrollable}
                                 handleSize={20}
+                                className={
+                                    containerId === Status.SOLVED &&
+                                    user?.role !== Role.ADMIN
+                                        ? "cursor-not-allowed"
+                                        : ""
+                                }
                                 loading={loading}
                             >
                                 <SortableContext
-                                    items={ticketsWithId.map(
+                                    items={sortedTickets.map(
                                         (ticket) => ticket.ticketId!
                                     )}
                                     strategy={strategy}
                                 >
-                                    {ticketsWithId.map((ticket, index) => (
+                                    {sortedTickets.map((ticket, index) => (
                                         <SortableItem
                                             disabled={isSortingContainer}
                                             key={ticket.ticketId}
-                                            id={ticket.ticketId}
+                                            id={ticket.ticketId!}
                                             ticket={ticket}
                                             index={index}
                                             handle={handle}
@@ -592,6 +661,7 @@ export function MultipleContainers({
             <Item
                 value={ticket.ticketId}
                 handle={handle}
+                containerId={containerId}
                 ticket={ticket}
                 style={getItemStyles({
                     containerId,
@@ -628,6 +698,7 @@ export function MultipleContainers({
                 {validTickets.map((ticket, index) => (
                     <Item
                         key={ticket.ticketId}
+                        containerId={containerId}
                         ticket={ticket}
                         value={ticket.ticketId}
                         handle={handle}
@@ -693,6 +764,7 @@ function SortableItem({
         <Item
             ref={disabled ? undefined : setNodeRef}
             value={id}
+            containerId={containerId}
             ticket={ticket}
             dragging={isDragging}
             sorting={isSorting}

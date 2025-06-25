@@ -19,6 +19,7 @@ import { Handle } from "../dnd/Item";
 import { Badge } from "../ui/badge";
 import { TicketDialog } from "./Dialog";
 import { formatDateWithSuffix } from "@/utils/FormatDate";
+import type { NavLinkProps } from "react-router-dom";
 
 
 
@@ -34,6 +35,7 @@ export type TicketCardProps = {
     handle: boolean;
     handleProps?: any;
     handleSize?: number;
+    disabled?: boolean;
     listeners?: DraggableSyntheticListeners;
 };
 
@@ -50,6 +52,7 @@ export function TicketCard(props: TicketCardProps) {
         handleProps,
         listeners,
         handleSize,
+        disabled
     } = props;
     const [ticket, setTicket] = useState<Ticket | undefined>(undefined);
     const [open, setOpen] = useState(false);
@@ -180,7 +183,7 @@ export function TicketCard(props: TicketCardProps) {
 
                     <span className="flex items-center">
                         {handle ? (
-                            <Handle size={handleSize} {...handleProps} {...listeners} />
+                            <Handle size={handleSize} disabled={disabled} {...handleProps} {...listeners} />
                         ) : null}
                     </span>
                 </CardContent>
