@@ -1,4 +1,4 @@
-import { MultipleContainers } from "@/components/layout/TestBoard";
+import { KanbanBoard } from "@/components/layout/KanbanBoard";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
@@ -27,13 +27,7 @@ export function AdminDashboard() {
 
                 <Card className="p-6">
                     <TabsContent value="tickets">
-                        {/* <div className="p-6 min-h-screen bg-background flex flex-col items-center gap-4">
-                        {tickets.map((ticket) => (
-                            <TicketCard {...ticket} />
-                        ))}
-                    </div> */}
-                        {/* <KanbanBoard></KanbanBoard> */}
-                        <MultipleContainers />
+                        <KanbanBoard></KanbanBoard>
                     </TabsContent>
                     <TabsContent value="analytics">
                         View Ticket Analytics here.

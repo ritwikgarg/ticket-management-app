@@ -5,7 +5,7 @@ import App from "./App.tsx";
 import { BrowserRouter, ScrollRestoration  } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { ThemeProvider } from "@/components/theme/theme-provider.tsx";
-import { ScrollToTop } from "./components/layout/scrollToTop.tsx";
+import { ScrollToTop } from "./components/ui/scrollToTop.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>

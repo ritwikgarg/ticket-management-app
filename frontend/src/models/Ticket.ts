@@ -1,6 +1,7 @@
 import type { IssueMap } from "@/enums/ticket/Issue";
 import type { Priority } from "../enums/ticket/Priority";
 import type { Status } from "../enums/ticket/Status";
+import type { User } from "./User";
 
 export interface Ticket {
     ticketId?: string;
@@ -15,7 +16,7 @@ export interface Ticket {
     issues?: IssueMap;
     issueDescription?: string;
     surgeonComment?: string;
-    attachments?: File[]; //TODO: figure out what type attachments should be
-    assignedTo?: string;
+    attachments?: File[];
+    assignedTo?: User[];
     comments?: string;
 }

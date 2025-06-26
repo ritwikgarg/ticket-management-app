@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -10,27 +9,36 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
     const { login } = useAuth();
-    const navigate = useNavigate();
 
-    const [email ] = useState("");
+    const [email] = useState("");
     const [password] = useState("");
-    const [,setError] = useState("");
+    const [, setError] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSaving(true);
         try {
-            await login(email, password);
-			navigate("/", { replace: true })
+            const res = await login(email, password);
+            console.log(res)
+            if (res.user) {
+                toast(`Welcome ${res.user.first_name}!`);
+            }
         } catch (err) {
+            toast("Invalid login credentials");
             setError("Invalid credentials");
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -51,7 +59,7 @@ export function LoginForm({
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="m@example.com"
+                                    placeholder="john.doe@merai.co"
                                     required
                                 />
                             </div>
@@ -62,8 +70,18 @@ export function LoginForm({
                                 <Input id="password" type="password" required />
                             </div>
                             <div className="flex flex-col gap-3">
-                                <Button type="submit" className="w-full">
-                                    Login
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? (
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        </span>
+                                    ) : (
+                                        "Login"
+                                    )}
                                 </Button>
                             </div>
                         </div>

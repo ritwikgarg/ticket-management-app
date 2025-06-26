@@ -51,6 +51,7 @@ export const Container = forwardRef<HTMLElement, Props>(
             shadow,
             unstyled,
             className,
+            loading,
             ...props
         }: Props,
         ref
@@ -105,7 +106,7 @@ export const Container = forwardRef<HTMLElement, Props>(
 
                 {placeholder ? (
                     children
-                ) : props.loading ? (
+                ) : loading ? (
                     <ul className="p-2 space-y-2 min-h-60">
                         {[...Array(2)].map((_, i) => (
                             <li key={i} className="w-full">

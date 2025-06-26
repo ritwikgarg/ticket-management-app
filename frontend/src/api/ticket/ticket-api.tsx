@@ -1,39 +1,51 @@
 import type { IssueMap } from "@/enums/ticket/Issue";
 import { Priority } from "@/enums/ticket/Priority";
 import { Status } from "@/enums/ticket/Status";
+import { Role } from "@/enums/user/Role";
 import type { Ticket } from "@/models/Ticket";
+import type { User } from "@/models/User";
 
- const issueMap: IssueMap = {
-        hardware: ["motor", "robot_arm"],
-        software: ["gap_check"],
-        other: [],
-    };
+const issueMap: IssueMap = {
+    hardware: ["motor", "robot_arm"],
+    software: ["gap_check"],
+    other: [],
+};
 
 export const createTicket = (
     data: Ticket
 ): Promise<{ data?: Ticket; message?: string }> => {
-    console.log(data)
+    console.log(data);
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve({ data });
-        }, 2000)
-    })
+        }, 2000);
+    });
+};
+
+export async function updateTicket(
+    ticket: Ticket
+): Promise<{ success: boolean }> {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log(`PUT /api/ticket/${ticket.ticketId}`);
+            resolve({ success: true });
+        }, 1500); // Simulated network delay
+    });
 }
 
-export async function updateTicketComment(ticketId: string, comment: string): Promise<{ success: boolean }> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log(`PUT /api/ticket/${ticketId} with comment: ${comment}`);
-      resolve({ success: true });
-    }, 1500); // Simulated network delay
-  });
-}
+export const getTicketDetails = (
+    ticketId: string
+): Promise<{ data: Ticket }> => {
+    const user: User = {
+        employee_id: "57264",
+        first_name: "Ritwik",
+        last_name: "Garg",
+        role: Role.SOLVER,
+        email: "ritwik.garg@merai.co",
+        contact_no: "8291620011",
+    };
 
-
-
-export const getTicketDetails = (ticketId: string): Promise<{ data: Ticket }> => {
     return new Promise((resolve, reject) => {
-
         const data: Ticket = {
             ticketId,
             createdBy: "blahBlah@example.com",
@@ -47,33 +59,43 @@ export const getTicketDetails = (ticketId: string): Promise<{ data: Ticket }> =>
             issues: issueMap,
             issueDescription: "Issue details here...",
             surgeonComment: "Please resolve quickly.",
-            attachments: [new File(["dummy content"], "report.pdf", { type: "application/pdf" }),
-            new File(["more content"], "photo.png", { type: "image/png" }),
-            new File(["notes"], "summary.docx", { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }),
-            new File(["data"], "table.csv", { type: "text/csv" }),
-            new File(["info"], "log.txt", { type: "text/plain" }),
-            new File(["image"], "xray.jpeg", { type: "image/jpeg" }),
-            new File(["sheet"], "finance.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
-            new File(["more text"], "details.txt", { type: "text/plain" }),
-            new File(["doc"], "protocol.pdf", { type: "application/pdf" }),
-            new File(["code"], "script.js", { type: "application/javascript" }),
-            new File(["json"], "config.json", { type: "application/json" }),
-            new File(["presentation"], "slides.pptx", { type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" }),
-            new File(["design"], "mockup.svg", { type: "image/svg+xml" })
+            attachments: [
+                new File(["dummy content"], "report.pdf", {
+                    type: "application/pdf",
+                }),
+                new File(["more content"], "photo.png", { type: "image/png" }),
+                new File(["notes"], "summary.docx", {
+                    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                }),
+                new File(["data"], "table.csv", { type: "text/csv" }),
+                new File(["info"], "log.txt", { type: "text/plain" }),
+                new File(["image"], "xray.jpeg", { type: "image/jpeg" }),
+                new File(["sheet"], "finance.xlsx", {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                }),
+                new File(["more text"], "details.txt", { type: "text/plain" }),
+                new File(["doc"], "protocol.pdf", { type: "application/pdf" }),
+                new File(["code"], "script.js", {
+                    type: "application/javascript",
+                }),
+                new File(["json"], "config.json", { type: "application/json" }),
+                new File(["presentation"], "slides.pptx", {
+                    type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                }),
+                new File(["design"], "mockup.svg", { type: "image/svg+xml" }),
             ],
-            assignedTo: "tech@example.com",
+            assignedTo: [user],
             comments: "Handled with urgency.",
-        }
+        };
         setTimeout(() => {
-            resolve({ data })
-        }, 2000)
-    })
-}
+            resolve({ data });
+        }, 2000);
+    });
+};
 
 export const getTicketList = (
-  assignedTo?: string
+    assignedTo?: string
 ): Promise<{ data: Ticket[] }> => {
-
     const ticket: Ticket = {
         ticketId: "BLAH123",
         hospitalName: "CityCare Hospital",
@@ -83,7 +105,6 @@ export const getTicketList = (
         status: Status.OPEN,
         createdBy: "blahBlah@example.com",
         issues: issueMap,
-
     };
 
     const statuses = Object.values(Status);
@@ -93,14 +114,13 @@ export const getTicketList = (
         ...ticket,
         ticketId: `TICKET-${i + 1}`,
         status: statuses[Math.floor(Math.random() * statuses.length)],
-        priority: priorities[Math.floor(Math.random() * priorities.length)]
+        priority: priorities[Math.floor(Math.random() * priorities.length)],
     })) as Ticket[];
 
-
     return new Promise((resolve, reject) => {
-        const data: Ticket[] = tickets
+        const data: Ticket[] = tickets;
         setTimeout(() => {
             resolve({ data });
-        }, 2000)
-    })
-}
+        }, 2000);
+    });
+};

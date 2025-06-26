@@ -20,13 +20,12 @@ import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { formatDateWithSuffix } from "@/utils/FormatDate";
 import { toast } from "sonner";
-import { updateTicketComment } from "@/api/ticket/ticket-api";
+import { updateTicket } from "@/api/ticket/ticket-api";
 import { Loader2 } from "lucide-react";
 import { TicketDialogSkeleton } from "./DialogSkeleton";
-
-
-
-
+import type { User } from "@/models/User";
+import { useAuth } from "@/context/AuthContext";
+import { Role } from "@/enums/user/Role";
 
 type TicketDialogProps = {
     ticket?: Ticket;
@@ -36,13 +35,9 @@ type TicketDialogProps = {
 };
 
 export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDialogProps) {
+    const {user} = useAuth();
     const [comment, setComment] = useState(ticket?.comments || "");
-
-    useEffect(() => {
-        if (open) {
-            setComment(ticket?.comments || "");
-        }
-    }, [ticket, open]);
+    const [assignedTo, setAssignedTo] = useState<User[] | undefined>(ticket?.assignedTo)
 
     const [isSaving, setIsSaving] = useState(false);
 
@@ -51,7 +46,9 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
 
         setIsSaving(true);
         try {
-            const res = await updateTicketComment(ticket.ticketId, comment);
+            ticket.comments += "\n" + comment;
+            ticket.assignedTo?.push()
+            const res = await updateTicket(ticket);
             if (res.success) {
                 toast.success("Changes saved successfully");
                 onOpenChange(false); // ✅ close only on success

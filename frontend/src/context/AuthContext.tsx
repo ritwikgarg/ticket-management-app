@@ -5,7 +5,7 @@ import { Role } from "@/enums/user/Role";
 
 type AuthContextType = {
     user: User | null;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<{ user: User }>;
     logout: () => void;
     isAuthenticated: boolean;
 };
@@ -31,27 +31,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, [user]);
 
     // Login function
-    const login = async (/*email: string, password: string*/) => {
+    const login = async (
+        email: string,
+        password: string
+    ): Promise<{ user: User }> => {
         try {
             //TODO: set token in cookies and also validate if a token already exists in the cookies and if it is valid
             // const response = await axios.post("/api/login", {
             //     email,
             //     password,
             // });
-            const response = {
-                data: {
-                    user: {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const user: User = {
                         employee_id: "57264",
                         first_name: "Ritwik",
                         last_name: "Garg",
-                        role: Role.SERVICE,
+                        role: Role.SOLVER,
                         email: "ritwik.garg@merai.co",
                         contact_no: "8291620011",
-                    },
-                },
-            };
-            setUser(response.data.user);
-            // console.log(useContext(AuthContext))
+                    };
+                    setUser(user);
+                }, 2000);
+            });
         } catch (error) {
             console.error("Login failed", error);
             throw error;
@@ -73,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 // Custom hook for easier usage
 export const useAuth = () => {
-    const context: AuthContextType | undefined  = useContext(AuthContext);
+    const context: AuthContextType | undefined = useContext(AuthContext);
     if (!context) throw new Error("useAuth must be used within AuthProvider");
     return context;
 };
