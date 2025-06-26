@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Command as CommandPrimitive } from "cmdk";
 import { X as RemoveIcon, Check } from "lucide-react";
 import React, {
+    type JSX,
     type KeyboardEvent,
     createContext,
     forwardRef,
@@ -23,6 +24,7 @@ interface MultiSelectorProps
     onValuesChange: (value: string[]) => void;
     loop?: boolean;
     valueLabelMap?: Record<string, string>;
+    icon?: JSX.Element;
 }
 
 interface MultiSelectContextProps {
@@ -65,6 +67,7 @@ const MultiSelector = ({
     children,
     dir,
     valueLabelMap = {},
+    icon,
     ...props
 }: MultiSelectorProps) => {
     const [inputValue, setInputValue] = useState("");
@@ -224,10 +227,16 @@ const MultiSelector = ({
     );
 };
 
+// Define your own prop type
+type MultiSelectorTriggerProps = {
+  icon?: JSX.Element; // This is your custom icon prop
+  children?: React.ReactNode;
+} & React.HTMLAttributes<HTMLDivElement>;
+
 const MultiSelectorTrigger = forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => {
+    MultiSelectorTriggerProps
+>(({ className, children, icon, ...props }, ref) => {
     const { value, onValueChange, activeIndex, valueLabelMap } = useMultiSelect();
 
     const mousePreventDefault = useCallback((e: React.MouseEvent) => {
@@ -256,6 +265,7 @@ const MultiSelectorTrigger = forwardRef<
                     )}
                     variant={"secondary"}
                 >
+                    {icon}
                     <span className="text-xs">{valueLabelMap?.[item] ?? item}</span>
                     <button
                         aria-label={`Remove ${item} option`}
@@ -265,7 +275,7 @@ const MultiSelectorTrigger = forwardRef<
                         onClick={() => onValueChange(item)}
                     >
                         <span className="sr-only">Remove {item} option</span>
-                        <RemoveIcon className="h-4 w-4 hover:stroke-destructive" />
+                        <RemoveIcon className="h-4 w-4 hover:stroke-destructive cursor-pointer" />
                     </button>
                 </Badge>
             ))}

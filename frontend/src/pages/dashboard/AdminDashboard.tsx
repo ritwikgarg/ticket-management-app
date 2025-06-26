@@ -2,9 +2,16 @@ import { KanbanBoard } from "@/components/layout/KanbanBoard";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
+import { SearchBar } from "@/components/ticket/SearchBar";
+import { FilterDropdown } from "@/components/ticket/FilterDropdown";
+import { useState } from "react";
+import type { Priority } from "@/enums/ticket/Priority";
 
 export function AdminDashboard() {
     const { user } = useAuth();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [priorityFilter, setPriorityFilter] = useState<Priority | undefined>();
+
 
     if (!user) return <div>Loading...</div>;
 
@@ -20,14 +27,22 @@ export function AdminDashboard() {
             </div>
 
             <Tabs defaultValue="tickets" className="w-full">
-                <TabsList>
+                <TabsList>  
                     <TabsTrigger value="tickets">Tickets</TabsTrigger>
                     <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 </TabsList>
 
                 <Card className="p-6">
                     <TabsContent value="tickets">
-                        <KanbanBoard></KanbanBoard>
+                        <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center">
+                              <div className="w-full">
+                            <SearchBar onSearch={setSearchTerm}  />
+                            </div>
+                              <div className="w-full md:w-40">
+                            <FilterDropdown onChange={(value) => setPriorityFilter(value)}/>
+                                </div>
+                        </div>
+                        <KanbanBoard searchTerm={searchTerm} priorityFilter={priorityFilter} />
                     </TabsContent>
                     <TabsContent value="analytics">
                         View Ticket Analytics here.

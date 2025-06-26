@@ -8,11 +8,11 @@ import type { Ticket } from "@/models/Ticket";
 import { formatEnumValue } from "@/utils/FormatEnum";
 import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import {
-  IconBuildingHospital,
-  IconClockHour4,
-  IconTicket,
-  IconTool,
-  IconUserCircle,
+    IconBuildingHospital,
+    IconClockHour4,
+    IconTicket,
+    IconTool,
+    IconUserCircle,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Handle } from "../dnd/Item";
@@ -20,6 +20,7 @@ import { Badge } from "../ui/badge";
 import { TicketDialog } from "./Dialog";
 import { formatDateWithSuffix } from "@/utils/FormatDate";
 import type { NavLinkProps } from "react-router-dom";
+import { Role } from "@/enums/user/Role";
 
 
 
@@ -78,7 +79,7 @@ export function TicketCard(props: TicketCardProps) {
     return (
         <>
 
-       
+
             <Card
                 onClick={handleClick}
                 className="w-full cursor-pointer hover:shadow-md transition-shadow py-0"
@@ -93,7 +94,7 @@ export function TicketCard(props: TicketCardProps) {
                                     #{ticketId}
                                 </h3>
                             </div>
-                         
+
                         </div>
 
                         <div className="grid grid-cols-[auto_1fr] gap-y-3 gap-x-4 text-sm">
@@ -151,13 +152,12 @@ export function TicketCard(props: TicketCardProps) {
                                     Priority:
                                 </span>
                                 <Badge
-                                    className={`font-medium px-2 py-1 rounded-lg ${
-                                        priority === Priority.HIGH
+                                    className={`font-medium px-2 py-1 rounded-lg ${priority === Priority.HIGH
                                             ? "bg-red-100 text-red-600"
                                             : priority === Priority.MED
-                                            ? "bg-yellow-100 text-yellow-600"
-                                            : "bg-green-100 text-green-600"
-                                    }`}
+                                                ? "bg-yellow-100 text-yellow-600"
+                                                : "bg-green-100 text-green-600"
+                                        }`}
                                 >
                                     {priority
                                         ?.charAt(0)
@@ -187,18 +187,18 @@ export function TicketCard(props: TicketCardProps) {
                         ) : null}
                     </span>
                 </CardContent>
-    
+
             </Card>
 
             {/* Show dialog only if ticket is fetched */}
-            {
+            {open && (
                 <TicketDialog
                     ticket={ticket}
                     open={open}
-                    loading={loading}
                     onOpenChange={setOpen}
+                    loading={loading}
                 />
-            }
+            )}
         </>
     );
 }

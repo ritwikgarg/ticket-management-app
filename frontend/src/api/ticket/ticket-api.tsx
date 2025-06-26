@@ -25,6 +25,7 @@ export const createTicket = (
 export async function updateTicket(
     ticket: Ticket
 ): Promise<{ success: boolean }> {
+    console.log(ticket)
     return new Promise((resolve) => {
         setTimeout(() => {
             console.log(`PUT /api/ticket/${ticket.ticketId}`);
@@ -85,7 +86,7 @@ export const getTicketDetails = (
                 new File(["design"], "mockup.svg", { type: "image/svg+xml" }),
             ],
             assignedTo: [user],
-            comments: "Handled with urgency.",
+            comments: ["Hello"],
         };
         setTimeout(() => {
             resolve({ data });
@@ -110,13 +111,23 @@ export const getTicketList = (
     const statuses = Object.values(Status);
     const priorities = Object.values(Priority);
 
+    const hospitalNames = [
+        "Apollo", "Fortis", "AIIMS", "Max Healthcare", "Narayana", "Medanta", "Kokilaben", "Care Hospitals", "Manipal", "Global"
+    ];
+
+    const generateRandomSystemId = () => {
+        const prefix = ["SYS", "DEV", "UNIT"];
+        return `${prefix[Math.floor(Math.random() * prefix.length)]}-${Math.floor(1000 + Math.random() * 9000)}`;
+    };
+
     const tickets: Ticket[] = Array.from({ length: 10 }).map((_, i) => ({
         ...ticket,
         ticketId: `TICKET-${i + 1}`,
         status: statuses[Math.floor(Math.random() * statuses.length)],
         priority: priorities[Math.floor(Math.random() * priorities.length)],
+        hospitalName: hospitalNames[Math.floor(Math.random() * hospitalNames.length)],
+        systemId: generateRandomSystemId(),
     })) as Ticket[];
-
     return new Promise((resolve, reject) => {
         const data: Ticket[] = tickets;
         setTimeout(() => {

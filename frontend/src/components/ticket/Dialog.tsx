@@ -23,9 +23,13 @@ import { toast } from "sonner";
 import { updateTicket } from "@/api/ticket/ticket-api";
 import { Loader2 } from "lucide-react";
 import { TicketDialogSkeleton } from "./DialogSkeleton";
-import type { User } from "@/models/User";
-import { useAuth } from "@/context/AuthContext";
 import { Role } from "@/enums/user/Role";
+import { useAuth } from "@/context/AuthContext";
+import { getUserList } from "@/api/user/user-api";
+import type { User } from "@/models/User";
+import { MultiSelector, MultiSelectorContent, MultiSelectorInput, MultiSelectorItem, MultiSelectorList, MultiSelectorTrigger } from "../ui/multi-select";
+import { IconUserCircle } from '@tabler/icons-react';
+
 
 type TicketDialogProps = {
     ticket?: Ticket;
@@ -35,31 +39,61 @@ type TicketDialogProps = {
 };
 
 export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDialogProps) {
-    const {user} = useAuth();
-    const [comment, setComment] = useState(ticket?.comments || "");
+    const { user } = useAuth();
+    // const [comment, setComment] = useState(ticket?.comments || "")
+    const [comment, setComment] = useState<string[]>(ticket?.comments || []); // Not `ticket?.comments` here
     const [assignedTo, setAssignedTo] = useState<User[] | undefined>(ticket?.assignedTo)
-
+    const [userOptions, setUserOptions] = useState<User[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+
+    const oldComments = ticket?.comments
+
+    useEffect(() => {
+        setAssignedTo(ticket?.assignedTo);
+        setComment([...(ticket?.comments || []), ...comment])
+    }, [ticket?.assignedTo, ticket?.comments]);
+
+    useEffect(() => {
+        if (user?.role === Role.ADMIN) {
+            getUserList(Role.SOLVER).then((res) => {
+                setUserOptions(res.data);
+            });
+        }
+    }, [user]);
+
+    function setAssignedToUsingUserOptions(employeeIds: string[]): void {
+        const usersAssignedTo: User[] = userOptions.filter((user) =>
+            employeeIds.includes(user.employee_id)
+        );
+        setAssignedTo(usersAssignedTo)
+    }
 
     const handleSave = async () => {
         if (!ticket?.ticketId || isSaving) return;
 
         setIsSaving(true);
         try {
-            ticket.comments += "\n" + comment;
-            ticket.assignedTo?.push()
-            const res = await updateTicket(ticket);
+            // ticket.comments?.concat(comment);
+            // ticket.assignedTo?.push()
+            const updatedTicket: Ticket = {
+                ...ticket!,
+                comments: [...(oldComments || []), ...comment],
+                assignedTo: assignedTo,
+            };
+            const res = await updateTicket(updatedTicket);
             if (res.success) {
                 toast.success("Changes saved successfully");
-                onOpenChange(false); // ✅ close only on success
+                onOpenChange(false);
             }
         } catch (error) {
             toast.error("An error occurred while saving.");
             console.error(error);
         } finally {
-            setIsSaving(false); // ✅ enable button again
+            setIsSaving(false);
         }
     };
+
+
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,7 +107,7 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                 </DialogHeader>
 
                 {loading ? (
-                    <TicketDialogSkeleton />
+                    <TicketDialogSkeleton role={user?.role}/>
                 ) : (
                     <>
 
@@ -115,6 +149,50 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                                             />
                                         </div>
                                     </div>
+
+                                    {
+                                        user?.role === Role.ADMIN ? (
+                                            <div className="flex flex-col">
+                                                <div className="text-sm font-medium">Assigned To</div>
+                                                <MultiSelector
+                                                    values={assignedTo?.map((user) => {
+                                                        console.log(user.employee_id)
+                                                        return user.employee_id
+                                                    }) ?? []}
+                                                    onValuesChange={(newValues) => setAssignedToUsingUserOptions(newValues)}
+                                                    loop
+                                                    valueLabelMap={
+                                                        userOptions.reduce((acc, user) => {
+                                                            acc[user.employee_id] = `${user.first_name} ${user.last_name}`;
+                                                            return acc;
+                                                        }, {} as Record<string, string>)
+                                                    }
+                                                    className="mt-1"
+                                                >
+                                                    <MultiSelectorTrigger icon={<IconUserCircle />}>
+                                                        <MultiSelectorInput placeholder="Select assignee(s)" />
+                                                    </MultiSelectorTrigger>
+                                                    <MultiSelectorContent>
+                                                        <MultiSelectorList>
+                                                            {userOptions.map((user) => (
+                                                                <MultiSelectorItem
+                                                                    key={user.employee_id}
+                                                                    value={user.employee_id}
+                                                                >
+                                                                    <div className="flex items-center gap-2">
+                                                                        <IconUserCircle className="w-4 h-4 text-muted-foreground" />
+                                                                        <span>{user.first_name} {user.last_name}</span>
+                                                                    </div>
+                                                                </MultiSelectorItem>
+                                                            ))}
+                                                        </MultiSelectorList>
+                                                    </MultiSelectorContent>
+                                                </MultiSelector>
+                                            </div>
+                                        ) : <></>
+                                    }
+
+
                                     <div className="grid grid-cols-1 md:grid grid-cols-2 gap-x-6 gap-y-4">
                                         {/* Priority */}
                                         <div className="flex flex-col md:flex-row md:items-center md:gap-2">
@@ -210,7 +288,7 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                                     <div className="pt-2">
                                         <span className="text-sm font-medium">Surgeon Comment</span>
                                         <Textarea
-                                            placeholder="surgeon comments"
+                                            placeholder="surgeon comments..."
                                             className="resize-none mt-1"
                                             value={ticket?.surgeonComment}
                                             disabled
@@ -221,10 +299,10 @@ export function TicketDialog({ ticket, open, loading, onOpenChange }: TicketDial
                                     <div className="pt-2">
                                         <span className="text-sm font-medium">Comments</span>
                                         <Textarea
-                                            placeholder="comments"
+                                            placeholder="Add comments..."
                                             className="resize-none mt-1"
                                             value={comment}
-                                            onChange={(e) => setComment(e.target.value)}
+                                            onChange={(e) => setComment([e.target.value])}
                                         />
                                     </div>
 

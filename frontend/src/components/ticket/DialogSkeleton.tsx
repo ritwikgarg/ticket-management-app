@@ -1,7 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Role } from "@/enums/user/Role"; // 👈 import Role
 
-export function TicketDialogSkeleton() {
+type TicketDialogSkeletonProps = {
+  role?: Role;
+};
+
+
+export function TicketDialogSkeleton({ role }: TicketDialogSkeletonProps) {
   return (
     <Card>
       <CardContent>
@@ -29,6 +35,14 @@ export function TicketDialogSkeleton() {
               <Skeleton className="h-9 mt-1 w-full" />
             </div>
           </div>
+
+          {/* ✅ Assigned To (Admin only) */}
+          {role === Role.ADMIN && (
+            <div className="flex flex-col">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-9 mt-1 w-full" />
+            </div>
+          )}
 
           {/* Priority + Status */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">

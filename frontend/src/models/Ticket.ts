@@ -18,5 +18,5 @@ export interface Ticket {
     surgeonComment?: string;
     attachments?: File[];
     assignedTo?: User[];
-    comments?: string;
+    comments?: string[];
 }
