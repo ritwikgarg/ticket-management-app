@@ -1,9 +1,9 @@
-import { KanbanBoard } from "@/components/layout/KanbanBoard";
+import { KanbanBoard } from "@/components/kanban-board/KanbanBoard";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
-import { SearchBar } from "@/components/ticket/SearchBar";
-import { FilterDropdown } from "@/components/ticket/FilterDropdown";
+import { SearchBar } from "@/components/kanban-board/SearchBar";
+import { FilterDropdown } from "@/components/kanban-board/FilterDropdown";
 import { useState } from "react";
 import type { Priority } from "@/enums/ticket/Priority";
 

@@ -10,7 +10,7 @@ import { Handle } from "../Item";
 import { cn } from "@/lib/utils";
 import styles from "./Container.module.css";
 import { Badge } from "@/components/ui/badge";
-import { TicketCardSkeleton } from "@/components/ticket/CardSkeleton";
+import { TicketCardSkeleton } from "@/components/kanban-board/ticket/CardSkeleton";
 
 export interface Props {
     children: React.ReactNode;

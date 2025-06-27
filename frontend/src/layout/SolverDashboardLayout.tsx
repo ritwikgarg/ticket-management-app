@@ -3,7 +3,7 @@ import { getTicketList } from "@/api/ticket/ticket-api";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Ticket } from "@/models/Ticket";
-import {KanbanBoard} from "@/components/layout/KanbanBoard";
+import {KanbanBoard} from "@/components/kanban-board/KanbanBoard";
 
 export function SolverDashboardView() {
     return (

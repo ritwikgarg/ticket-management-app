@@ -14,8 +14,8 @@ import {
     IconUserCircle,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { Handle } from "../dnd/Item";
-import { Badge } from "../ui/badge";
+import { Handle } from "../../dnd/Item";
+import { Badge } from "../../ui/badge";
 import { TicketDialog } from "./Dialog";
 
 export type TicketCardProps = {

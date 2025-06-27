@@ -10,7 +10,7 @@ import { Handle } from "./components";
 
 import styles from "./Item.module.css";
 import type { Ticket } from "@/models/Ticket";
-import { TicketCard } from "@/components/ticket/Card";
+import { TicketCard } from "@/components/kanban-board/ticket/Card";
 import { Status } from "@/enums/ticket/Status";
 import { useAuth } from "@/context/AuthContext";
 import { Role } from "@/enums/user/Role";

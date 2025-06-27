@@ -20,10 +20,10 @@ import { IconEdit, IconFile, IconUserCircle } from "@tabler/icons-react";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
-import { Input } from "../ui/input";
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { Card, CardContent } from "../../ui/card";
+import { Input } from "../../ui/input";
 import {
     MultiSelector,
     MultiSelectorContent,
@@ -31,15 +31,15 @@ import {
     MultiSelectorItem,
     MultiSelectorList,
     MultiSelectorTrigger,
-} from "../ui/multi-select";
+} from "../../ui/multi-select";
 import {
     Select,
     SelectContent,
     SelectGroup,
     SelectItem,
     SelectTriggerWithIcon,
-} from "../ui/select";
-import { Textarea } from "../ui/textarea";
+} from "../../ui/select";
+import { Textarea } from "../../ui/textarea";
 import { TicketDialogSkeleton } from "./DialogSkeleton";
 
 type TicketDialogProps = {
@@ -59,6 +59,7 @@ export function TicketDialog({
 }: TicketDialogProps) {
     const { user } = useAuth();
     const [comment, setComment] = useState<string[]>(ticket?.comments || []);
+    const [newComment, setNewComment] = useState(""); // user-typed comment
     const [assignedTo, setAssignedTo] = useState<User[] | undefined>(
         ticket?.assignedTo
     );
@@ -73,10 +74,13 @@ export function TicketDialog({
     const oldComments = ticket?.comments;
 
     useEffect(() => {
-        setAssignedTo(ticket?.assignedTo);
-        setComment([...(ticket?.comments || []), ...comment]);
-        setStatusTo(ticket?.status || Status.OPEN);
-        setAdminComment(ticket?.adminComment ?? "");
+        if (!ticket) return;
+
+        setAssignedTo(ticket.assignedTo);
+        setComment(ticket.comments || []);
+        setStatusTo(ticket.status || Status.OPEN);
+        setAdminComment(ticket.adminComment ?? "");
+        setNewComment(""); // ✅ clear textarea when new ticket opens
     }, [ticket]);
 
     useEffect(() => {
@@ -101,9 +105,11 @@ export function TicketDialog({
         try {
             const updatedTicket: Ticket = {
                 ...ticket!,
-                comments: [...(oldComments || []), ...comment],
-                assignedTo: assignedTo,
-                status: status,
+                comments: newComment
+                    ? [...(ticket?.comments || []), newComment] // ✅ append
+                    : ticket?.comments || [],
+                assignedTo,
+                status,
                 adminComment: user?.role === Role.ADMIN ? adminComment : ticket?.adminComment,
             };
             const res = await updateTicket(updatedTicket);
@@ -111,6 +117,7 @@ export function TicketDialog({
                 toast.success("Changes saved successfully");
                 onTicketUpdate?.(res.data);
                 onOpenChange(false);
+                // setNewComment("");
             }
         } catch (error) {
             toast.error("An error occurred while saving.");
@@ -119,6 +126,9 @@ export function TicketDialog({
             setIsSaving(false);
         }
     };
+
+    console.log("newComment:", newComment);
+
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -185,9 +195,9 @@ export function TicketDialog({
                                                 value={
                                                     ticket?.ticketCreationDate
                                                         ? formatDateWithSuffix(
-                                                              ticket!
-                                                                  .ticketCreationDate
-                                                          )
+                                                            ticket!
+                                                                .ticketCreationDate
+                                                        )
                                                         : ""
                                                 }
                                                 disabled
@@ -280,9 +290,9 @@ export function TicketDialog({
                                                         Priority.HIGH
                                                         ? "bg-red-100 text-red-600"
                                                         : ticket?.priority ===
-                                                          Priority.MED
-                                                        ? "bg-yellow-100 text-yellow-600"
-                                                        : "bg-green-100 text-green-600"
+                                                            Priority.MED
+                                                            ? "bg-yellow-100 text-yellow-600"
+                                                            : "bg-green-100 text-green-600"
                                                 )}
                                             >
                                                 {ticket?.priority}
@@ -301,15 +311,15 @@ export function TicketDialog({
                                                         status === Status.OPEN
                                                             ? "bg-blue-100 text-blue-600"
                                                             : status ===
-                                                              Status.DOING
-                                                            ? "bg-orange-100 text-orange-600"
-                                                            : status ===
-                                                              Status.REVIEW
-                                                            ? "bg-pink-100 text-pink-600"
-                                                            : status ===
-                                                              Status.SOLVED
-                                                            ? "bg-green-100 text-green-600"
-                                                            : ""
+                                                                Status.DOING
+                                                                ? "bg-orange-100 text-orange-600"
+                                                                : status ===
+                                                                    Status.REVIEW
+                                                                    ? "bg-pink-100 text-pink-600"
+                                                                    : status ===
+                                                                        Status.SOLVED
+                                                                        ? "bg-green-100 text-green-600"
+                                                                        : ""
                                                     )}
                                                 >
                                                     {status}
@@ -323,7 +333,7 @@ export function TicketDialog({
                                                             newValue as Status
                                                         );
                                                     }}
-                                                    // defaultValue={}
+                                                // defaultValue={}
                                                 >
                                                     <SelectTriggerWithIcon
                                                         className={cn(
@@ -346,9 +356,9 @@ export function TicketDialog({
                                                                     ) => {
                                                                         if (
                                                                             status ===
-                                                                                Status.SOLVED &&
+                                                                            Status.SOLVED &&
                                                                             user?.role !==
-                                                                                Role.ADMIN
+                                                                            Role.ADMIN
                                                                         ) {
                                                                             return false; // Hide 'SOLVED' if not admin
                                                                         }
@@ -406,29 +416,29 @@ export function TicketDialog({
                                                             </div>
                                                             {subkeys.length >
                                                                 0 && (
-                                                                <div className="flex flex-wrap gap-2 pt-2">
-                                                                    {subkeys.map(
-                                                                        (
-                                                                            subkey
-                                                                        ) => (
-                                                                            <Badge
-                                                                                key={
-                                                                                    subkey
-                                                                                }
-                                                                                className="px-2 py-1 rounded-lg text-xs font-medium bg-muted text-muted-foreground border"
-                                                                                variant="secondary"
-                                                                            >
-                                                                                {issueMetadata[
-                                                                                    category as keyof typeof issueMetadata
-                                                                                ]?.[
-                                                                                    subkey as keyof (typeof issueMetadata)[keyof typeof issueMetadata]
-                                                                                ] ??
-                                                                                    subkey}
-                                                                            </Badge>
-                                                                        )
-                                                                    )}
-                                                                </div>
-                                                            )}
+                                                                    <div className="flex flex-wrap gap-2 pt-2">
+                                                                        {subkeys.map(
+                                                                            (
+                                                                                subkey
+                                                                            ) => (
+                                                                                <Badge
+                                                                                    key={
+                                                                                        subkey
+                                                                                    }
+                                                                                    className="px-2 py-1 rounded-lg text-xs font-medium bg-muted text-muted-foreground border"
+                                                                                    variant="secondary"
+                                                                                >
+                                                                                    {issueMetadata[
+                                                                                        category as keyof typeof issueMetadata
+                                                                                    ]?.[
+                                                                                        subkey as keyof (typeof issueMetadata)[keyof typeof issueMetadata]
+                                                                                    ] ??
+                                                                                        subkey}
+                                                                                </Badge>
+                                                                            )
+                                                                        )}
+                                                                    </div>
+                                                                )}
                                                         </div>
                                                     </Card>
                                                 ))
@@ -445,7 +455,7 @@ export function TicketDialog({
                                             Issue Description
                                         </span>
                                         <Textarea
-                                            placeholder="issue description"
+                                            placeholder="Describe the issue here"
                                             className="resize-none mt-1"
                                             value={ticket?.issueDescription}
                                             disabled
@@ -458,37 +468,54 @@ export function TicketDialog({
                                             Surgeon Comment
                                         </span>
                                         <Textarea
-                                            placeholder="surgeon comments..."
+                                            placeholder="Comment(s) added by the surgeon"
                                             className="resize-none mt-1"
                                             value={ticket?.surgeonComment}
                                             disabled
                                         />
                                     </div>
 
-                                    {/* Comments */}
-                                    <div className="pt-2">
-                                        <span className="text-sm font-medium">
-                                            Comments
-                                        </span>
-                                        <Textarea
-                                            placeholder="Add comments..."
-                                            className="resize-none mt-1"
-                                            value={comment}
-                                            onChange={(e) =>
-                                                setComment([e.target.value])
-                                            }
-                                        />
-                                    </div>
+                                    {/* Admin Comment */}
                                     <div className="pt-2">
                                         <span className="text-sm font-medium">Admin Comment</span>
                                         <Textarea
-                                            placeholder="admin comment"
+                                            placeholder="Comment(s) added by the admin"
                                             className="resize-none mt-1"
                                             value={adminComment}
                                             onChange={(e) => setAdminComment(e.target.value)}
                                             disabled={user?.role !== Role.ADMIN}
                                         />
                                     </div>
+
+                                    {/* Comments */}
+                                    <div className="pt-2">
+                                        <span className="text-sm font-medium">Comments</span>
+
+                                        {/* Existing Comments */}
+                                        {comment.length > 0 ? (
+                                            <div className="space-y-2 mt-1">
+                                                {comment.map((cmt, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        className="text-sm p-2 border rounded-md bg-muted text-muted-foreground"
+                                                    >
+                                                        {cmt}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-muted-foreground mt-1">No comments yet.</div>
+                                        )}
+
+                                        {/* New Comment Input */}
+                                        <Textarea
+                                            placeholder="Add any additional comments here..."
+                                            className="resize-none mt-3"
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                        />
+                                    </div>
+
 
 
                                     {/* Attachments */}
