@@ -9,6 +9,7 @@ export function RedirectHandler() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("this called")
     if (!user) {
       navigate("/login", { replace: true });
     } else if (user.role === Role.ADMIN) {

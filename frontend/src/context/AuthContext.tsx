@@ -47,11 +47,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         employee_id: "57264",
                         first_name: "Ritwik",
                         last_name: "Garg",
-                        role: Role.SERVICE,
+                        role: Role.SOLVER,
                         email: "ritwik.garg@merai.co",
                         contact_no: "8291620011",
                     };
                     setUser(user);
+                    resolve({ user: user });
                 }, 2000);
             });
         } catch (error) {

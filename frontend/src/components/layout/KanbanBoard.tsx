@@ -85,7 +85,7 @@ function DroppableContainer({
 
     const isOverContainer = over
         ? (id === over.id && active?.data.current?.type !== "container") ||
-        items.some((ticket) => ticket.ticketId === over.id)
+          items.some((ticket) => ticket.ticketId === over.id)
         : false;
 
     return (
@@ -238,8 +238,6 @@ export function KanbanBoard({
         getTicketListData();
     }, []);
 
-
-
     const [containers, setContainers] = useState(
         Object.keys(items) as Status[]
     );
@@ -382,12 +380,51 @@ export function KanbanBoard({
 
         const lower = searchTerm.toLowerCase();
 
-        return tickets.filter((ticket) =>
-            ticket.ticketId?.toLowerCase().includes(lower) ||
-            ticket.hospitalName?.toLowerCase().includes(lower) ||
-            ticket.systemId?.toLowerCase().includes(lower)
+        return tickets.filter(
+            (ticket) =>
+                ticket.ticketId?.toLowerCase().includes(lower) ||
+                ticket.hospitalName?.toLowerCase().includes(lower) ||
+                ticket.systemId?.toLowerCase().includes(lower)
         );
     }
+
+    const handleTicketUpdate = (updated: Ticket) => {
+        if (!updated.status) return;
+
+        setItems((prevItems) => {
+            const oldStatus = Object.keys(prevItems).find((status) =>
+                prevItems[status as Status].some(
+                    (t) => t.ticketId === updated.ticketId
+                )
+            ) as Status | undefined;
+
+            if (!oldStatus) return prevItems;
+
+            const updatedStatus = updated.status as Status;
+
+            // ✅ No status change → replace the ticket in-place
+            if (oldStatus === updatedStatus) {
+                return {
+                    ...prevItems,
+                    [oldStatus]: prevItems[oldStatus].map((t) =>
+                        t.ticketId === updated.ticketId ? updated : t
+                    ),
+                };
+            }
+
+            // ✅ Status changed → move to new group
+            const updatedOld = prevItems[oldStatus].filter(
+                (t) => t.ticketId !== updated.ticketId
+            );
+            const updatedNew = [updated, ...(prevItems[updatedStatus] ?? [])];
+
+            return {
+                ...prevItems,
+                [oldStatus]: updatedOld,
+                [updatedStatus]: updatedNew,
+            };
+        });
+    };
 
     return (
         <DndContext
@@ -467,7 +504,7 @@ export function KanbanBoard({
                             over &&
                             active.rect.current.translated &&
                             active.rect.current.translated.top >
-                            over.rect.top + over.rect.height;
+                                over.rect.top + over.rect.height;
 
                         const modifier = isBelowOverItem ? 1 : 0;
 
@@ -607,18 +644,25 @@ export function KanbanBoard({
 
                         // 2. 🔍 Apply search filter
                         if (searchTerm?.trim()) {
-                            tickets = filterTicketsBySearchTerm(tickets, searchTerm);
+                            tickets = filterTicketsBySearchTerm(
+                                tickets,
+                                searchTerm
+                            );
                         }
 
                         // 3. 🔽 Apply priority filter
                         if (priorityFilter) {
-                            tickets = tickets.filter((t) => t.priority === priorityFilter);
+                            tickets = tickets.filter(
+                                (t) => t.priority === priorityFilter
+                            );
                         }
 
                         // 4. 📌 Sort tickets by priority + creation date
                         const sortedTickets = sortTickets(
                             tickets.filter(
-                                (ticket): ticket is Ticket & { ticketId: string } =>
+                                (
+                                    ticket
+                                ): ticket is Ticket & { ticketId: string } =>
                                     Boolean(ticket.ticketId)
                             )
                         );
@@ -639,7 +683,7 @@ export function KanbanBoard({
                                 handleSize={20}
                                 className={
                                     containerId === Status.SOLVED &&
-                                        user?.role !== Role.ADMIN
+                                    user?.role !== Role.ADMIN
                                         ? "cursor-not-allowed"
                                         : ""
                                 }
@@ -664,6 +708,7 @@ export function KanbanBoard({
                                             renderItem={renderItem}
                                             containerId={containerId}
                                             getIndex={getIndex}
+                                            onTicketUpdate={handleTicketUpdate}
                                         />
                                     ))}
                                 </SortableContext>
@@ -682,19 +727,19 @@ export function KanbanBoard({
                         ? (containers as UniqueIdentifier[]).includes(activeId)
                             ? renderContainerDragOverlay(activeId as Status)
                             : (() => {
-                                const activeTicket = Object.values(items)
-                                    .flat()
-                                    .find(
-                                        (ticket) =>
-                                            ticket.ticketId === activeId
-                                    );
+                                  const activeTicket = Object.values(items)
+                                      .flat()
+                                      .find(
+                                          (ticket) =>
+                                              ticket.ticketId === activeId
+                                      );
 
-                                return activeTicket
-                                    ? renderSortableItemDragOverlay(
-                                        activeTicket
-                                    )
-                                    : null;
-                            })()
+                                  return activeTicket
+                                      ? renderSortableItemDragOverlay(
+                                            activeTicket
+                                        )
+                                      : null;
+                              })()
                         : null}
                 </DragOverlay>,
                 document.body
@@ -780,6 +825,7 @@ interface SortableItemProps {
     ticket: Ticket;
     style(args: any): React.CSSProperties;
     getIndex(id: UniqueIdentifier): number;
+    onTicketUpdate?: (ticket: Ticket) => void;
     renderItem(): React.ReactElement;
 }
 
@@ -789,6 +835,7 @@ function SortableItem({
     index,
     handle,
     handleSize,
+    onTicketUpdate,
     renderItem,
     style,
     containerId,
@@ -819,6 +866,7 @@ function SortableItem({
             ticket={ticket}
             dragging={isDragging}
             sorting={isSorting}
+            onTicketUpdate={onTicketUpdate}
             handle={handle}
             handleProps={handle ? { ref: setActivatorNodeRef } : undefined}
             handleSize={handleSize}

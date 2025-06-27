@@ -3,9 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { IssueMap } from "@/enums/ticket/Issue";
 import { Priority } from "@/enums/ticket/Priority";
 import { Status } from "@/enums/ticket/Status";
-import { cn } from "@/lib/utils";
 import type { Ticket } from "@/models/Ticket";
-import { formatEnumValue } from "@/utils/FormatEnum";
+import { formatDateWithSuffix } from "@/utils/FormatDate";
 import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import {
     IconBuildingHospital,
@@ -18,11 +17,6 @@ import { useEffect, useState } from "react";
 import { Handle } from "../dnd/Item";
 import { Badge } from "../ui/badge";
 import { TicketDialog } from "./Dialog";
-import { formatDateWithSuffix } from "@/utils/FormatDate";
-import type { NavLinkProps } from "react-router-dom";
-import { Role } from "@/enums/user/Role";
-
-
 
 export type TicketCardProps = {
     ticketId?: string;
@@ -38,6 +32,7 @@ export type TicketCardProps = {
     handleSize?: number;
     disabled?: boolean;
     listeners?: DraggableSyntheticListeners;
+    onTicketUpdate?: (ticket: Ticket) => void;
 };
 
 export function TicketCard(props: TicketCardProps) {
@@ -53,7 +48,8 @@ export function TicketCard(props: TicketCardProps) {
         handleProps,
         listeners,
         handleSize,
-        disabled
+        disabled,
+        onTicketUpdate
     } = props;
     const [ticket, setTicket] = useState<Ticket | undefined>(undefined);
     const [open, setOpen] = useState(false);
@@ -197,6 +193,7 @@ export function TicketCard(props: TicketCardProps) {
                     open={open}
                     onOpenChange={setOpen}
                     loading={loading}
+                    onTicketUpdate={onTicketUpdate}
                 />
             )}
         </>

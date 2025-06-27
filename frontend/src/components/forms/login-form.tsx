@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export function LoginForm({
@@ -25,17 +26,16 @@ export function LoginForm({
     const [, setError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
 
+    const navigate = useNavigate();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
         try {
             const res = await login(email, password);
-            console.log(res)
-            if (res.user) {
-                toast(`Welcome ${res.user.first_name}!`);
-            }
+            console.log("navigate called")
+            navigate("/", {replace: true})
         } catch (err) {
-            toast("Invalid login credentials");
             setError("Invalid credentials");
         } finally {
             setIsSaving(false);

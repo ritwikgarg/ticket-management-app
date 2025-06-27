@@ -36,6 +36,7 @@ export interface Props {
     ticket: Ticket;
     containerId: UniqueIdentifier;
     onRemove?(): void;
+    onTicketUpdate?: (ticket: Ticket) => void;
     renderItem?(args: {
         dragOverlay: boolean;
         dragging: boolean;
@@ -66,6 +67,7 @@ export const Item = React.memo(
                 height,
                 index,
                 listeners,
+                onTicketUpdate,
                 onRemove,
                 renderItem,
                 sorting,
@@ -160,6 +162,7 @@ export const Item = React.memo(
                                     user?.role !== Role.ADMIN
                                 }
                                 handleSize={handleSize}
+                                onTicketUpdate={onTicketUpdate}
                             />
                         </div>
                     </div>
