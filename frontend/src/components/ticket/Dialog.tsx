@@ -65,6 +65,8 @@ export function TicketDialog({
     const [status, setStatusTo] = useState<Status>(
         ticket?.status || Status.OPEN
     );
+    // const [comment, setComment] = useState(ticket?.comments || "")
+    const [adminComment, setAdminComment] = useState(ticket?.adminComment ?? "");
     const [userOptions, setUserOptions] = useState<User[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -74,7 +76,8 @@ export function TicketDialog({
         setAssignedTo(ticket?.assignedTo);
         setComment([...(ticket?.comments || []), ...comment]);
         setStatusTo(ticket?.status || Status.OPEN);
-    }, [ticket?.assignedTo, ticket?.comments, ticket?.status]);
+        setAdminComment(ticket?.adminComment ?? "");
+    }, [ticket]);
 
     useEffect(() => {
         if (user?.role === Role.ADMIN) {
@@ -101,6 +104,7 @@ export function TicketDialog({
                 comments: [...(oldComments || []), ...comment],
                 assignedTo: assignedTo,
                 status: status,
+                adminComment: user?.role === Role.ADMIN ? adminComment : ticket?.adminComment,
             };
             const res = await updateTicket(updatedTicket);
             if (res.success) {
@@ -475,6 +479,17 @@ export function TicketDialog({
                                             }
                                         />
                                     </div>
+                                    <div className="pt-2">
+                                        <span className="text-sm font-medium">Admin Comment</span>
+                                        <Textarea
+                                            placeholder="admin comment"
+                                            className="resize-none mt-1"
+                                            value={adminComment}
+                                            onChange={(e) => setAdminComment(e.target.value)}
+                                            disabled={user?.role !== Role.ADMIN}
+                                        />
+                                    </div>
+
 
                                     {/* Attachments */}
                                     <div>

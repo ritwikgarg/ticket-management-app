@@ -16,6 +16,7 @@ export interface Ticket {
     issues?: IssueMap;
     issueDescription?: string;
     surgeonComment?: string;
+    adminComment?: string;
     attachments?: File[];
     assignedTo?: User[];
     comments?: string[];

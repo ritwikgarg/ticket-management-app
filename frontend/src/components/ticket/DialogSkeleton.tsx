@@ -90,6 +90,13 @@ export function TicketDialogSkeleton({ role }: TicketDialogSkeletonProps) {
             <Skeleton className="h-20 w-full" />
           </div>
 
+         
+            <div className="pt-2">
+            <Skeleton className="h-4 w-28 mb-1" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+        
+
           {/* Attachments */}
           <div className="pt-2">
             <Skeleton className="h-4 w-24 mb-1" />
